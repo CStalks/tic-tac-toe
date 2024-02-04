@@ -28,7 +28,6 @@ function GameBoard(){
   return {getBoard, addMarker, printBoard };
 }
 
-let here = GameBoard();
 
 // marker represents the symbols on the board
 // 0 represents no marker at that postion
@@ -44,6 +43,38 @@ function Cell(){
 }
 
 function GameController(playerOneName="playerOne", playerTwoName="playerTwoName"){
-  return {};
+  const board = GameBoard();
+
+  const players = [{name: playerOneName, token: 1},{name:playerTwoName, token: 2}];
+
+  let activePlayer = players[0];
+
+  const switchPlayerTurn = () => {
+    activePlayer = activePlayer === players[0] ? players[1] : players[0];
+  }
+
+  const getActivePlayer = () => activePlayer;
+
+  const printNewRound = () => {
+    board.printBoard();
+    console.log(`${getActivePlayer().name}'s turn.`);
+  }
+
+  const playRound = (row, col) => {
+    console.log(`Place ${getActivePlayer().name}'s marker into row ${row} column ${col}...`);
+    board.addMarker(row, col, getActivePlayer().token);
+      
+
+    //check for win here
+
+    switchPlayerTurn();
+    printNewRound();
+  }
+  // Initial game message
+  printNewRound();
+
+  return {playRound, getActivePlayer};
 }
+
+const game = GameController();
 
