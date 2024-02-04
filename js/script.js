@@ -17,12 +17,12 @@ function GameBoard(){
     const cellAvailable = board[posX][posY].getMarker() === 0;
     
     if(!cellAvailable) return;
-    board[posX][posY].changeMarker() = playerOption;
+    board[posX][posY].changeMarker(playerOption);
   }
   
    //a method to show the board to the console after each turn that we play
    const printBoard = () => {
-    boardWithCellValues = board.map(row => row.filter(cell => cell.getMarker())); 
+    boardWithCellValues = board.map(row => row.map(cell => cell.getMarker())); 
     console.log(boardWithCellValues);
   }
   return {getBoard, addMarker, printBoard };
