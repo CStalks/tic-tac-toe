@@ -14,7 +14,7 @@ function GameBoard(){
   const getBoard = () => board;
 
   const addMarker = (posX, posY, playerOption) => {
-    const cellAvailable = board[posX][posY].getMarker() === 0;
+    const cellAvailable = board[posX][posY].getMarker() === '';
     
     if(!cellAvailable) return;
     board[posX][posY].changeMarker(playerOption);
@@ -30,11 +30,11 @@ function GameBoard(){
 
 
 // marker represents the symbols on the board
-// 0 represents no marker at that postion
-// 1 represents the symbol X at that positon
-// 2 represents the symbol O  at that position
+// '' represents no marker at that postion
+// X represents the marker for player 1
+// O represents the marker for player 2
 function Cell(){
-  let marker = 0;
+  let marker = '';
 
   const changeMarker = (playerMarker) => marker = playerMarker; 
   const getMarker = () => marker;
@@ -44,7 +44,7 @@ function Cell(){
 
 function GameController(playerOneName="playerOne", playerTwoName="playerTwoName"){
   const board = GameBoard();
-  const players = [{name: playerOneName, token: 1},{name:playerTwoName, token: 2}];
+  const players = [{name: playerOneName, token: 'X'},{name:playerTwoName, token: 'O'}];
   let activePlayer = players[0];
 
   const switchPlayerTurn = () => {
@@ -86,12 +86,13 @@ function ScreenController() {
     playerTurnDiv.textContent = `${activePlayer.name}'s turn...`;
 
     // Render board squares 
-    board.forEach(row => {
-      row.forEach((cell, index) => {
+    board.forEach((row, rowIndex) => {
+      row.forEach((cell, colIndex) => {
         const cellButton = document.createElement("button");
         cellButton.classList.add("cell");
 
-        cellButton.dataset.column = index;
+        cellButton.dataset.row = rowIndex;
+        cellButton.dataset.column = colIndex;
         cellButton.textContent = cell.getMarker();
         boardDiv.appendChild(cellButton);
       })
@@ -99,17 +100,18 @@ function ScreenController() {
   }
 
   function clickHandlerBoard(e){
+    const selectedRow    = e.target.dataset.row;
     const selectedColumn = e.target.dataset.column;
-
-    if(!selectedColumn) return;
-    //have to pass the row and column into playRound
-    game.playRound(selectedColumn);
-    updateScreen();
+    
+    if(e.target.textContent === ''){
+      game.playRound(selectedRow,selectedColumn);
+      updateScreen();
+    }
+    
   } 
 
   boardDiv.addEventListener("click", clickHandlerBoard);
   updateScreen();
 }
-
 
 ScreenController();
