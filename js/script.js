@@ -15,17 +15,17 @@ function GameBoard(){
 
   const addMarker = (posX, posY, playerOption) => {
     const cellAvailable = board[posX][posY].getMarker() === '';
-    
+
     if(!cellAvailable) return;
     board[posX][posY].changeMarker(playerOption);
   }
   
-   //a method to show the board to the console after each turn that we play
-   const printBoard = () => {
+  //a method to show the board to the console after each turn that we play
+  const printBoard = () => {
     boardWithCellValues = board.map(row => row.map(cell => cell.getMarker())); 
     console.log(boardWithCellValues);
   }
-  return {getBoard, addMarker, printBoard };
+  return {getBoard, addMarker, printBoard};
 }
 
 
@@ -58,18 +58,45 @@ function GameController(playerOneName="playerOne", playerTwoName="playerTwoName"
     console.log(`${getActivePlayer().name}'s turn.`);
   }
 
-  const playRound = (row, col) => {
-    console.log(`Place ${getActivePlayer().name}'s marker into row ${row} column ${col}...`);
-    board.addMarker(row, col, getActivePlayer().token);
-      
-    // check for win here
-    switchPlayerTurn();
-    printNewRound();
+  const checkWin = () => {
+    let updatedBoard = board.getBoard();
+    
+    if( (updatedBoard[0][0].getMarker() === 'X' && updatedBoard[0][1].getMarker() === 'X' && updatedBoard[0][2].getMarker() === 'X')    ||
+        (updatedBoard[1][0].getMarker() === 'X' && updatedBoard[1][1].getMarker() === 'X' && updatedBoard[1][2].getMarker() === 'X')    ||
+        (updatedBoard[2][0].getMarker() === 'X' && updatedBoard[2][1].getMarker() === 'X' && updatedBoard[2][2].getMarker() === 'X')    ||
+        (updatedBoard[0][0].getMarker() === 'X' && updatedBoard[1][0].getMarker() === 'X' && updatedBoard[2][0].getMarker() === 'X')    ||
+        (updatedBoard[0][1].getMarker() === 'X' && updatedBoard[1][1].getMarker() === 'X' && updatedBoard[2][1].getMarker() === 'X')    ||
+        (updatedBoard[0][2].getMarker() === 'X' && updatedBoard[1][2].getMarker() === 'X' && updatedBoard[2][2].getMarker() === 'X')    ||
+        (updatedBoard[0][0].getMarker() === 'X' && updatedBoard[1][1].getMarker() === 'X' && updatedBoard[2][2].getMarker() === 'X')    ||
+        (updatedBoard[0][2].getMarker() === 'X' && updatedBoard[1][1].getMarker() === 'X' && updatedBoard[2][0].getMarker() === 'X')){
+         return `${getActivePlayer().name} Won`;
+    } else if((updatedBoard[0][0].getMarker() === 'O' && updatedBoard[0][1].getMarker() === 'O' && updatedBoard[0][2].getMarker() === 'O') ||
+        (updatedBoard[1][0].getMarker() === 'O' && updatedBoard[1][1].getMarker() === 'O' && updatedBoard[1][2].getMarker() === 'O')    ||
+        (updatedBoard[2][0].getMarker() === 'O' && updatedBoard[2][1].getMarker() === 'O' && updatedBoard[2][2].getMarker() === 'O')    ||
+        (updatedBoard[0][0].getMarker() === 'O' && updatedBoard[1][0].getMarker() === 'O' && updatedBoard[2][0].getMarker() === 'O')    ||
+        (updatedBoard[0][1].getMarker() === 'O' && updatedBoard[1][1].getMarker() === 'O' && updatedBoard[2][1].getMarker() === 'O')    ||
+        (updatedBoard[0][2].getMarker() === 'O' && updatedBoard[1][2].getMarker() === 'O' && updatedBoard[2][2].getMarker() === 'O')    ||
+        (updatedBoard[0][0].getMarker() === 'O' && updatedBoard[1][1].getMarker() === 'O' && updatedBoard[2][2].getMarker() === 'O')    ||
+        (updatedBoard[0][2].getMarker() === 'O' && updatedBoard[1][1].getMarker() === 'O' && updatedBoard[2][0].getMarker() === 'O')){
+          return `${getActivePlayer().name} Won`;
+    } else {
+      return false;
+    }
   }
+
+  const playRound = (row, col) => {
+      if(checkWin()){
+        return;
+      }
+      board.addMarker(row, col, getActivePlayer().token);
+      switchPlayerTurn();
+      printNewRound();
+  }
+
   // Initial game message
   printNewRound();
 
-  return {playRound, getActivePlayer, getBoard: board.getBoard};
+  return {playRound, getActivePlayer, getBoard: board.getBoard, checkWin};
 }
 
 function ScreenController() {
@@ -81,9 +108,15 @@ function ScreenController() {
     boardDiv.textContent = "";
 
     const board = game.getBoard();
-    const activePlayer  = game.getActivePlayer();
+    const activePlayer = game.getActivePlayer();
 
-    playerTurnDiv.textContent = `${activePlayer.name}'s turn...`;
+    if(game.checkWin()){
+      playerTurnDiv.textContent = `${activePlayer.name} Won`;
+    } else {
+      playerTurnDiv.textContent = `${activePlayer.name}'s turn...`;
+
+    }
+
 
     // Render board squares 
     board.forEach((row, rowIndex) => {
@@ -95,23 +128,23 @@ function ScreenController() {
         cellButton.dataset.column = colIndex;
         cellButton.textContent = cell.getMarker();
         boardDiv.appendChild(cellButton);
-      })
-    })
+      });
+    });
   }
 
   function clickHandlerBoard(e){
     const selectedRow    = e.target.dataset.row;
     const selectedColumn = e.target.dataset.column;
-    
+
     if(e.target.textContent === ''){
       game.playRound(selectedRow,selectedColumn);
       updateScreen();
     }
-    
-  } 
+  }
 
   boardDiv.addEventListener("click", clickHandlerBoard);
   updateScreen();
+
 }
 
 ScreenController();
